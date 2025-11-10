@@ -1,6 +1,7 @@
 {
-  "homeassistant": "2025.11.0",
   "name": "Hikvision ISAPI (Universal)",
+  "zip_release": false,
+  "homeassistant": "2025.11.0",
   "display_name": "Hikvision ISAPI (Universal)",
   "description": "Universal Hikvision ISAPI Home Assistant integration.",
   "authors": [
@@ -11,12 +12,11 @@
   "categories": [
     "integration"
   ],
-  "zip_release": false,
   "tags": [
     "hikvision",
     "camera",
     "isapi",
     "security"
   ],
-  "version": "0.2.1"
+  "version": "0.2.3"
 }
