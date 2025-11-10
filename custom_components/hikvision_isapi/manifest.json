@@ -1,0 +1,15 @@
+{
+  "domain": "hikvision_isapi",
+  "name": "Hikvision ISAPI (Universal)",
+  "version": "0.2.1",
+  "documentation": "https://github.com/soosterwaal/hikvision-isapi",
+  "requirements": [
+    "httpx>=0.28.1,<0.29",
+    "lxml>=5,<6"
+  ],
+  "codeowners": [
+    "@soosterwaal"
+  ],
+  "config_flow": true,
+  "iot_class": "local_polling"
+}
