@@ -2,7 +2,19 @@
   "config": {
     "step": {
       "user": {
-        "title": "Hikvision ISAPI"
+        "title": "Hikvision ISAPI",
+        "description": "Connect to your Hikvision camera via ISAPI.",
+        "data": {
+          "ip": "Camera IP",
+          "port": "Port",
+          "ssl": "Use HTTPS",
+          "username": "Username",
+          "password": "Password",
+          "verify_ssl": "Verify SSL",
+          "timeout": "HTTP timeout (s)",
+          "channel": "Image channel",
+          "auth_type": "Authentication type"
+        }
       }
     }
   }

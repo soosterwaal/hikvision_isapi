@@ -1,20 +1,10 @@
 {
   "name": "Hikvision ISAPI (Universal)",
-  "display_name": "Hikvision ISAPI (Universal)",
-  "description": "Universal Hikvision ISAPI Home Assistant integration.",
-  "authors": [
-    "soosterwaal"
-  ],
-  "homeassistant": "integration",
-  "categories": [
-    "integration"
-  ],
-  "zip_release": false,
-  "tags": [
-    "hikvision",
-    "camera",
-    "isapi",
-    "security"
-  ],
-  "version": "0.2.1"
+  "render_readme": true,
+  "domains": [
+    "sensor",
+    "number",
+    "select",
+    "switch"
+  ]
 }

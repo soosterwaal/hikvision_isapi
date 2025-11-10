@@ -1,7 +1,7 @@
 {
   "domain": "hikvision_isapi",
   "name": "Hikvision ISAPI (Universal)",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "documentation": "https://github.com/soosterwaal/hikvision-isapi",
   "requirements": [
     "httpx>=0.28.1,<0.29",

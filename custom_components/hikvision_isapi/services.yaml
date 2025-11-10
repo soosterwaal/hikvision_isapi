@@ -1,2 +1,21 @@
 set_by_xpath:
   name: Set by XPath
+  description: Set any camera parameter by XPath (universal).
+  fields:
+    xpath:
+      example: "//Shutter/ShutterTime"
+    value:
+      example: "1/25"
+    prefer_sub:
+      example: "shutter"
+    wrap:
+      example: "ImageChannel"
+
+set_raw_xml:
+  name: PUT raw XML
+  description: PUT raw XML to a path (advanced).
+  fields:
+    path:
+      example: "/ISAPI/Image/channels/1/shutter"
+    xml:
+      example: "<Shutter><ShutterMode>manual</ShutterMode><ShutterTime>1/25</ShutterTime></Shutter>"

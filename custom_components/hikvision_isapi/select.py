@@ -1,1 +1,46 @@
-# select placeholder
+from __future__ import annotations
+from homeassistant.components.select import SelectEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from .const import DOMAIN
+from .coordinator import HikvisionCoordinator
+from .entity_map import TYPED_SUFFIX_PARAMS
+
+def _matches(coord: HikvisionCoordinator, suffix: str):
+    for path in coord.data.keys():
+        if path.endswith(suffix):
+            yield path
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
+    store = hass.data[DOMAIN][entry.entry_id]
+    coord: HikvisionCoordinator = store["coordinator"]
+
+    entities = []
+    for item in TYPED_SUFFIX_PARAMS:
+        if item.get("platform") != "select":
+            continue
+        suffix = item["suffix"]
+        for path in _matches(coord, suffix):
+            entities.append(HikvisionSelect(coord, path, item))
+    if entities:
+        async_add_entities(entities)
+
+class HikvisionSelect(CoordinatorEntity[HikvisionCoordinator], SelectEntity):
+    _attr_has_entity_name = True
+
+    def __init__(self, coordinator, path: str, meta: dict):
+        super().__init__(coordinator)
+        self._path = path
+        self._meta = meta
+        self._attr_unique_id = f"hik_sel_{abs(hash(path))}"
+        self._attr_name = meta.get("name") or path.rsplit('/',1)[-1]
+        self._attr_options = list(meta.get("options", []))
+
+    @property
+    def current_option(self):
+        return self.coordinator.data.get(self._path)
+
+    async def async_select_option(self, option: str) -> None:
+        await self.coordinator.client.set_by_xpath(self._path.replace("/ImageChannel","//"), option)
+        await self.coordinator.async_request_refresh()
