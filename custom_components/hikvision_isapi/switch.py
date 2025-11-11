@@ -53,9 +53,9 @@ class HikvisionSwitch(CoordinatorEntity[HikvisionCoordinator], SwitchEntity):
         return _truthy(val, self._on_vals)
 
     async def async_turn_on(self, **kwargs):
-        await self.coordinator.client.set_by_xpath(path_to_xpath(self._path), self._on_vals[0], prefix_subpath=self._sub)
+        await self.coordinator.client.set_by_xpath(path_to_xpath(self._path), self._on_vals[0], prefer_sub=self._sub)
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs):
-        await self.coordinator.client.set_by_xpath(path_to_xpath(self._path), self._off_vals[0], prefix_subpath=self._sub)
+        await self.coordinator.client.set_by_xpath(path_to_xpath(self._path), self._off_vals[0], prefer_sub=self._sub)
         await self.coordinator.async_request_refresh()
