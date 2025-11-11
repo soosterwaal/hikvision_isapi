@@ -27,7 +27,12 @@ class HikvisionIsapiClient:
         self._digest = (auth_type == "digest")
 
         auth = httpx.DigestAuth(username, password) if self._digest else (username, password)
-        self._client = httpx.AsyncClient(timeout=timeout, verify=verify_ssl, auth=auth)
+        self._client = httpx.AsyncClient(
+            timeout=httpx.Timeout(connect=3.0, read=5.0, write=5.0, pool=5.0),
+            limits=httpx.Limits(max_keepalive_connections=0, max_connections=10),
+            verify=verify_ssl,
+            auth=auth
+        )
 
     async def close(self):
         await self._client.aclose()

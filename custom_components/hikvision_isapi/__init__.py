@@ -1,3 +1,6 @@
+import logging
+from homeassistant.const import EVENT_HOMEASSISTANT_STOP
+import asyncio
 from __future__ import annotations
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.config_entries import ConfigEntry
@@ -19,10 +22,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         auth_type=data.get(CONF_AUTH_TYPE, "digest"),
     )
     coord = HikvisionCoordinator(hass, client)
-    await coord.async_config_entry_first_refresh()
+    async def _initial_refresh():
+    try:
+        await asyncio.wait_for(coord.async_config_entry_first_refresh(), timeout=6)
+    except asyncio.TimeoutError:
+        logging.getLogger(__name__).warning(
+            "Hikvision ISAPI: initial refresh timed out; will continue in background"
+        )
+        hass.async_create_task(coord.async_request_refresh())
+    except Exception as exc:
+        logging.getLogger(__name__).warning(
+            "Hikvision ISAPI: initial refresh failed: %s; will retry later", exc
+        )
+hass.async_create_task(_initial_refresh())
+hass.data.setdefault(DOMAIN, {})
+def _on_stop(_event):
+    hass.async_create_task(client.close())
+unsub_stop = hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, _on_stop)
 
-    hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = {"client": client, "coordinator": coord}
+    hass.data[DOMAIN][entry.entry_id] = {
+        'unsub_stop': unsub_stop,"client": client, "coordinator": coord}
 
     async def _svc_set_by_xpath(call: ServiceCall):
         xpath = call.data["xpath"]

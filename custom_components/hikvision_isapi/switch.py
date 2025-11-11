@@ -42,6 +42,7 @@ class HikvisionSwitch(CoordinatorEntity[HikvisionCoordinator], SwitchEntity):
         self._meta = meta
         self._attr_unique_id = f"hik_swi_{abs(hash(path))}"
         self._attr_name = meta.get("name") or path.rsplit('/',1)[-1]
+        self._sub = path.rsplit('/',1)[0]
         self._on_vals = meta.get("on", ["true","1","on","enabled"])
         self._off_vals = meta.get("off", ["false","0","off","disabled"])
 
@@ -51,9 +52,9 @@ class HikvisionSwitch(CoordinatorEntity[HikvisionCoordinator], SwitchEntity):
         return _truthy(val, self._on_vals)
 
     async def async_turn_on(self, **kwargs):
-        await self.coordinator.client.set_by_xpath(path_to_xpath(self._path), self._on_vals[0])
+        await self.coordinator.client.set_by_xpath(path_to_xpath(self._path), self._on_vals[0], prefer_sub=self._sub)
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs):
-        await self.coordinator.client.set_by_xpath(path_to_xpath(self._path), self._off_vals[0])
+        await self.coordinator.client.set_by_xpath(path_to_xpath(self._path), self._off_vals[0], prefer_sub=self._sub)
         await self.coordinator.async_request_refresh()
