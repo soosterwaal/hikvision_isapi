@@ -6,7 +6,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 from .coordinator import HikvisionCoordinator
 from .entity_map import TYPED_SUFFIX_PARAMS
-from .utils import path_to_xpath
+from .utils import stable_uid, path_to_xpath  # path_to_xpath from your earlier fix
 
 def _matches(coord: HikvisionCoordinator, suffix: str):
     for path in coord.data.keys():
@@ -16,6 +16,7 @@ def _matches(coord: HikvisionCoordinator, suffix: str):
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     store = hass.data[DOMAIN][entry.entry_id]
     coord: HikvisionCoordinator = store["coordinator"]
+    entry_id = entry.entry_id
 
     entities = []
     for item in TYPED_SUFFIX_PARAMS:
@@ -23,18 +24,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
             continue
         suffix = item["suffix"]
         for path in _matches(coord, suffix):
-            entities.append(HikvisionSelect(coord, path, item))
+            entities.append(HikvisionSelect(coord, path, item, entry_id))
     if entities:
         async_add_entities(entities)
 
 class HikvisionSelect(CoordinatorEntity[HikvisionCoordinator], SelectEntity):
     _attr_has_entity_name = True
 
-    def __init__(self, coordinator, path: str, meta: dict):
+    def __init__(self, coordinator, path: str, meta: dict, entry_id: str):
         super().__init__(coordinator)
         self._path = path
         self._meta = meta
-        self._attr_unique_id = f"hik_sel_{abs(hash(path))}"
+        self._entry_id = entry_id
+        self._attr_unique_id = f"hik_sel_{stable_uid(entry_id, path)}"
         self._attr_name = meta.get("name") or path.rsplit('/',1)[-1]
         self._attr_options = list(meta.get("options", []))
 
