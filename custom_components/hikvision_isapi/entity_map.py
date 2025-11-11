@@ -6,6 +6,7 @@ TYPED_SUFFIX_PARAMS = [
     {"suffix": "/Exposure/ExposureCompensation", "platform": "number", "min": -5, "max": 5, "step": 1, "name": "Exposure Compensation"},
     {"suffix": "/Gain/level", "platform": "number", "min": 0, "max": 100, "step": 1, "name": "Gain"},
 
+    {"suffix": "/ImageFlip/enabled", "platform": "switch", "name": "Image Flip", "on": ["true","1","on","enabled"], "off": ["false","0","off","disabled"]},
     {"suffix": "/WDR/enabled", "platform": "switch", "name": "WDR", "on": ["true","1","on","enabled"], "off": ["false","0","off","disabled"]},
     {"suffix": "/BLC/enabled", "platform": "switch", "name": "Backlight Compensation", "on": ["true","1","on","enabled"], "off": ["false","0","off","disabled"]},
     {"suffix": "/HLC/enabled", "platform": "switch", "name": "Highlight Compensation", "on": ["true","1","on","enabled"], "off": ["false","0","off","disabled"]},
