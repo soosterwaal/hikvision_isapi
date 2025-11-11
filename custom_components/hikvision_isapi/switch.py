@@ -42,7 +42,7 @@ class HikvisionSwitch(CoordinatorEntity[HikvisionCoordinator], SwitchEntity):
         self._meta = meta
         self._attr_unique_id = f"hik_swi_{abs(hash(path))}"
         self._attr_name = meta.get("name") or path.rsplit('/',1)[-1]
-        self._sub = path.rsplit('/',1)[0]
+        self._sub = path.rsplit("/")[2]
         self._on_vals = meta.get("on", ["true","1","on","enabled"])
         self._off_vals = meta.get("off", ["false","0","off","disabled"])
 
