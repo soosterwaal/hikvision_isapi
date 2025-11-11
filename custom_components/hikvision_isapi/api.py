@@ -98,7 +98,7 @@ class HikvisionIsapiClient:
                 root = ET.fromstring(xml_text.encode("utf-8"))
                 nodes = root.xpath(xpath)
         if not nodes:
-            raise HikIsapiError(f"XPath not found: {xpath}")
+            raise HikIsapiError(f"XPath not found: {xpath} {xml_text}")
 
         # 2) Set text on all matched nodes (usually 1)
         changed = False
