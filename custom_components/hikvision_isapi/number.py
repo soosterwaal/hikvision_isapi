@@ -6,6 +6,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 from .coordinator import HikvisionCoordinator
 from .entity_map import TYPED_SUFFIX_PARAMS
+from .utils import path_to_xpath
 
 def _matches(coord: HikvisionCoordinator, suffix: str):
     for path in coord.data.keys():
@@ -48,5 +49,5 @@ class HikvisionNumber(CoordinatorEntity[HikvisionCoordinator], NumberEntity):
             return None
 
     async def async_set_native_value(self, value: float) -> None:
-        await self.coordinator.client.set_by_xpath(self._path.replace("/ImageChannel","//"), str(int(value)))
+        await self.coordinator.client.set_by_xpath(path_to_xpath(self._path), str(int(value)))
         await self.coordinator.async_request_refresh()

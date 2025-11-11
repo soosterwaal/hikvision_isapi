@@ -2,7 +2,7 @@
   "domain": "hikvision_isapi",
   "name": "Hikvision ISAPI (Universal)",
   "integration_type" : "device",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "dependencies": [],
   "documentation": "https://github.com/soosterwaal/hikvision-isapi",
   "requirements": [

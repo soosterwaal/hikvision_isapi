@@ -3,9 +3,11 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
 from .const import DOMAIN
 from .coordinator import HikvisionCoordinator
 from .entity_map import TYPED_SUFFIX_PARAMS
+from .utils import path_to_xpath
 
 def _matches(coord: HikvisionCoordinator, suffix: str):
     for path in coord.data.keys():
@@ -49,9 +51,9 @@ class HikvisionSwitch(CoordinatorEntity[HikvisionCoordinator], SwitchEntity):
         return _truthy(val, self._on_vals)
 
     async def async_turn_on(self, **kwargs):
-        await self.coordinator.client.set_by_xpath(self._path.replace("/ImageChannel","//"), self._on_vals[0])
+        await self.coordinator.client.set_by_xpath(path_to_xpath(self._path), self._on_vals[0])
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs):
-        await self.coordinator.client.set_by_xpath(self._path.replace("/ImageChannel","//"), self._off_vals[0])
+        await self.coordinator.client.set_by_xpath(path_to_xpath(self._path), self._off_vals[0])
         await self.coordinator.async_request_refresh()

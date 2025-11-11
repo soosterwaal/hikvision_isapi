@@ -6,6 +6,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 from .coordinator import HikvisionCoordinator
 from .entity_map import TYPED_SUFFIX_PARAMS
+from .utils import path_to_xpath
 
 def _matches(coord: HikvisionCoordinator, suffix: str):
     for path in coord.data.keys():
@@ -42,5 +43,5 @@ class HikvisionSelect(CoordinatorEntity[HikvisionCoordinator], SelectEntity):
         return self.coordinator.data.get(self._path)
 
     async def async_select_option(self, option: str) -> None:
-        await self.coordinator.client.set_by_xpath(self._path.replace("/ImageChannel","//"), option)
+        await self.coordinator.client.set_by_xpath(path_to_xpath(self._path), option)
         await self.coordinator.async_request_refresh()
