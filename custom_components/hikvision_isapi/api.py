@@ -70,11 +70,11 @@ class HikvisionIsapiClient:
     async def read_sub_or_main(self, sub: str) -> Tuple[str, str]:
         """Return (path_used, xml) for either /.../<sub> or main."""
         sub_path = f"/Image/channels/{self.channel}/{sub}"
-        _LOGGER.info("Trying sub-endpoint: %s", sub_path)
+        _LOGGER.warning("Trying sub-endpoint: %s", sub_path)
         if await self.has_endpoint(sub_path):
             return sub_path, await self.get_xml(sub_path)
         
-        _LOGGER.info("Falling back to main channel for sub-endpoint: %s", sub_path)
+        _LOGGER.warning("Falling back to main channel for sub-endpoint: %s", sub_path)
         main_path = f"/Image/channels/{self.channel}"
         return main_path, await self.get_xml(main_path)
 
@@ -93,7 +93,7 @@ class HikvisionIsapiClient:
         """
         # 1) Pick source XML (sub-endpoint if possible)
         if prefer_sub:
-            _LOGGER.info("Using prefer_sub=%s for xpath=%s", prefer_sub, xpath)
+            _LOGGER.warning("Using prefer_sub=%s for xpath=%s", prefer_sub, xpath)
             path, xml_text = await self.read_sub_or_main(prefer_sub)
         else:
             path = f"/Image/channels/{self.channel}"
