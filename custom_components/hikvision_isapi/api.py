@@ -99,6 +99,7 @@ class HikvisionIsapiClient:
             path = f"/Image/channels/{self.channel}"
             xml_text = await self.read_image_channel()
 
+        _LOGGER.warning("Using path=%s and xml_text=%s", path, xml_text)
         root = ET.fromstring(xml_text.encode("utf-8"))
         nodes = root.xpath(xpath)
         if not nodes:
