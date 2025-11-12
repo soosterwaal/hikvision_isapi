@@ -66,6 +66,28 @@ class HikvisionIsapiClient:
     # -------- Universal read (Image Channel) --------
     async def read_image_channel(self) -> str:
         return await self.get_xml(f"/Image/channels/{self.channel}")
+    
+    def _nsmap_for(root):
+        # geef default namespace een prefix 'ns'
+        nsmap = {}
+        for k, v in (root.nsmap or {}).items():
+            if not v:
+                continue
+            nsmap[k or "ns"] = v
+        return nsmap
+
+    def _ns_agnostic(xpath: str) -> str:
+        # //A/B/C -> //*[local-name()='A']/*[local-name()='B']/*[local-name()='C']
+        if not xpath or not xpath.startswith("//"):
+            return xpath
+        parts = [p for p in xpath[2:].split("/") if p]
+        out = []
+        for p in parts:
+            if "[" in p or "(" in p or p == "*":
+                out.append(p)
+            else:
+                out.append(f"*[(local-name()='{p}')]")
+        return "//" + "/".join(out)
 
     async def read_sub_or_main(self, sub: str) -> Tuple[str, str]:
         """Return (path_used, xml) for either /.../<sub> or main."""
@@ -101,14 +123,18 @@ class HikvisionIsapiClient:
 
         _LOGGER.warning("Using path=%s and xml_text=%s", path, xml_text)
         root = ET.fromstring(xml_text.encode("utf-8"))
-        nodes = root.xpath(xpath)
+
+        xpath = self._ns_agnostic(xpath)
+        ns = self._nsmap_for(root)
+        nodes = root.xpath(xpath, namespaces=ns) if ns else root.xpath(xpath)
+
         if not nodes:
             # If we read sub xml and failed, try main as fallback for node presence
             if prefer_sub and path.endswith(prefer_sub):
                 path = f"/Image/channels/{self.channel}"
                 xml_text = await self.read_image_channel()
                 root = ET.fromstring(xml_text.encode("utf-8"))
-                nodes = root.xpath(xpath)
+                nodes = root.xpath(xpath, namespaces=ns) if ns else root.xpath(xpath)
         if not nodes:
             raise HikIsapiError(f"XPath not found: {xpath} {xml_text}")
 
