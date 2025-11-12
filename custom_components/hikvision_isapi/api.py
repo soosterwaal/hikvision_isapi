@@ -92,11 +92,9 @@ class HikvisionIsapiClient:
     async def read_sub_or_main(self, sub: str) -> Tuple[str, str]:
         """Return (path_used, xml) for either /.../<sub> or main."""
         sub_path = f"/Image/channels/{self.channel}/{sub}"
-        _LOGGER.warning("Trying sub-endpoint: %s", sub_path)
         if await self.has_endpoint(sub_path):
             return sub_path, await self.get_xml(sub_path)
         
-        _LOGGER.warning("Falling back to main channel for sub-endpoint: %s", sub_path)
         main_path = f"/Image/channels/{self.channel}"
         return main_path, await self.get_xml(main_path)
 
@@ -115,13 +113,11 @@ class HikvisionIsapiClient:
         """
         # 1) Pick source XML (sub-endpoint if possible)
         if prefer_sub:
-            _LOGGER.warning("Using prefer_sub=%s for xpath=%s", prefer_sub, xpath)
             path, xml_text = await self.read_sub_or_main(prefer_sub)
         else:
             path = f"/Image/channels/{self.channel}"
             xml_text = await self.read_image_channel()
 
-        _LOGGER.warning("Using path=%s and xml_text=%s", path, xml_text)
         root = ET.fromstring(xml_text.encode("utf-8"))
 
         xpath = self._ns_agnostic(xpath)
@@ -141,17 +137,21 @@ class HikvisionIsapiClient:
         # 2) Set text on all matched nodes (usually 1)
         changed = False
         for node in nodes:
+            _LOGGER.debug("Setting node=%s to value=%s", getattr(node, "text", None), value)
             if getattr(node, "text", None) != value:
                 node.text = value
                 changed = True
         if not changed:
+            _LOGGER.debug("No change needed for xpath=%s", xpath)
             return "No change"
 
         # 3) Build minimal payload:
         if prefer_sub and path.endswith(prefer_sub):
+            _LOGGER.debug("PUT to sub-endpoint %s", path)
             payload = ET.tostring(root, encoding="utf-8", xml_declaration=False).decode()
             return await self.put_xml(path, payload)
 
+        _LOGGER.debug("PUT to main channel endpoint")
         top = wrap or "ImageChannel"
         # Find the nearest ancestor under ImageChannel for the first node
         first = nodes[0]
