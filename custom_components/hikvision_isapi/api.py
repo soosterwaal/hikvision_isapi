@@ -137,21 +137,18 @@ class HikvisionIsapiClient:
         # 2) Set text on all matched nodes (usually 1)
         changed = False
         for node in nodes:
-            _LOGGER.debug("Setting node=%s to value=%s", getattr(node, "text", None), value)
             if getattr(node, "text", None) != value:
                 node.text = value
                 changed = True
         if not changed:
-            _LOGGER.debug("No change needed for xpath=%s", xpath)
+            _LOGGER.warning("No change needed for xpath=%s", xpath)
             return "No change"
 
         # 3) Build minimal payload:
         if prefer_sub and path.endswith(prefer_sub):
-            _LOGGER.debug("PUT to sub-endpoint %s", path)
             payload = ET.tostring(root, encoding="utf-8", xml_declaration=False).decode()
             return await self.put_xml(path, payload)
 
-        _LOGGER.debug("PUT to main channel endpoint")
         top = wrap or "ImageChannel"
         # Find the nearest ancestor under ImageChannel for the first node
         first = nodes[0]
@@ -164,16 +161,3 @@ class HikvisionIsapiClient:
         payload = ET.tostring(container, encoding="utf-8", xml_declaration=False).decode()
         return await self.put_xml(f"/Image/channels/{self.channel}", payload)
 
-    # Convenience setters (typed)
-    async def set_shutter(self, value: str):
-        return await self.set_by_xpath("//Shutter/ShutterTime", value, prefer_sub="shutter")
-
-    async def set_daynight(self, mode: str):
-        return await self.set_by_xpath("//DayNight/DayNightFilterType", mode, prefer_sub="dayNight")
-
-    async def set_mixed_light(self, mode: str):
-        # Try common locations; fall back if first fails
-        try:
-            return await self.set_by_xpath("//MixedLight/mixedLightBrightnessRegulatMode", mode, prefer_sub="mixedLight")
-        except Exception:
-            return await self.set_by_xpath("//ImageEnhancement/mixedLightBrightnessRegulatMode", mode, prefer_sub=None)
