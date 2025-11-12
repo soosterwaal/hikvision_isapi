@@ -67,7 +67,7 @@ class HikvisionIsapiClient:
     async def read_image_channel(self) -> str:
         return await self.get_xml(f"/Image/channels/{self.channel}")
     
-    def _nsmap_for(root):
+    def _nsmap_for(self, root):
         # geef default namespace een prefix 'ns'
         nsmap = {}
         for k, v in (root.nsmap or {}).items():
@@ -76,7 +76,7 @@ class HikvisionIsapiClient:
             nsmap[k or "ns"] = v
         return nsmap
 
-    def _ns_agnostic(xpath: str) -> str:
+    def _ns_agnostic(self, xpath: str) -> str:
         # //A/B/C -> //*[local-name()='A']/*[local-name()='B']/*[local-name()='C']
         if not xpath or not xpath.startswith("//"):
             return xpath
